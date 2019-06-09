@@ -1,6 +1,8 @@
 ﻿namespace FirePredictionSystem.ViewModels
 {
+    using NLog;
     using System.Windows;
+    using System.Collections;
     using System.Collections.Generic;
 
     using FirePredictionSystem.Models;
@@ -10,12 +12,17 @@
 
     class MainViewModel : ViewModelBase
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private string m_ImagePath;
         private string m_FilePath;
         private List<Attribute> m_Data;
         private string[][] m_ReadedData;
         private Tree m_Tree;
         private string m_TestResult;
+        private List<int> m_TreeLayersAnswers;
+        private ArrayList m_TreeLayersLeafs;
+        private List<TreeInfo> m_TreeLayersGridList;
 
         //additional
         private RelayCommand m_BrowseFileCommand;
@@ -75,6 +82,45 @@
             }
         }
 
+        public List<int> TreeLayersAnswers
+        {
+            get
+            {
+                return m_TreeLayersAnswers;
+            }
+            set
+            {
+                m_TreeLayersAnswers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ArrayList TreeLayersLeafs
+        {
+            get
+            {
+                return m_TreeLayersLeafs;
+            }
+            set
+            {
+                m_TreeLayersLeafs = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<TreeInfo> TreeLayersGridList
+        {
+            get
+            {
+                return m_TreeLayersGridList;
+            }
+            set
+            {
+                m_TreeLayersGridList = value;
+                OnPropertyChanged();
+            }
+        }
+
         public MainViewModel()
         {
         }
@@ -130,9 +176,27 @@
                         //С4.5 stuff there
                         if (m_ReadedData != null)
                         {
+                            System.Console.WriteLine($"Кол-во строк: {m_ReadedData.Length}");
                             var input = new Input(m_ReadedData);
                             m_Tree = new Tree();
                             m_Tree.Build(input);
+                            m_Tree.CountLeafInTree();
+
+                            TreeInfo info = new TreeInfo();
+                            info.LeafsOnLayer.AddRange(m_Tree.LayersAnswers);
+                            info.AnswersOnLayer.AddRange(m_Tree.LayersLeaf);
+                            List<int> leafIndecies = new List<int>();
+                            for (int i = 0; i < info.AnswersOnLayer.Count; i++)
+                            {
+                                leafIndecies.Add(i);
+                            }
+                            info.LayerIndex.AddRange(leafIndecies);
+
+                            System.Console.WriteLine("Id Leafs Answers");
+                            System.Console.WriteLine(info.ToString());
+                            System.Console.WriteLine($"Layers count: {info.LayersCount}");
+                            System.Console.WriteLine($"Answers count: {info.AnswersCount}");
+                            System.Console.WriteLine($"Leafs count: {info.LeafCount}");
 
                             var graph = new TreeGraph(m_Tree);
                             graph.BuildGraph();

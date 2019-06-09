@@ -8,7 +8,10 @@ namespace FirePredictionSystem.Additional.C45
     public class Tree
     {
         public Leaf Root { get; set; }
-    
+        public int LeafCounter { get; set; }
+        public List<int> LayersAnswers { get; set; } 
+        public List<int> LayersLeaf    { get; set; }
+
         public void Build(Input input)
         {
 #if BANCHMARK
@@ -19,18 +22,19 @@ namespace FirePredictionSystem.Additional.C45
             Root.Input = input;
             Root.SetChildren();
 
+            int iter = 0, NumberOfAnswers = 0;
+            
             List<Leaf> children1 = new List<Leaf>(50);
-            children1.AddRange(Root.Children);
             List<Leaf> children2 = new List<Leaf>(50);
 
-            int NumberOfAnswers = 0;
-            List<int> LayersAnswers = new List<int>(10);
-            int iter = 0;
-            while (children1.Count > 0 && 
-                iter < 1000)
+            children1.AddRange(Root.Children);
+
+            while (children1.Count > 0 &&
+                 iter < 1000)
             {
                 foreach (var child in children1)
                 {
+
                     if (!child.IsAnswer)
                     {
                         ++iter;
@@ -40,18 +44,11 @@ namespace FirePredictionSystem.Additional.C45
                             children2.Add(child2);
                         }
                     }
-                    else
-                    {
-                        ++NumberOfAnswers;
-                    }
                 }
 
                 children1.Clear();
                 children1.AddRange(children2);
                 children2.Clear();
-
-                LayersAnswers.Add(NumberOfAnswers);
-                NumberOfAnswers = 0;
             }
 #if BANCHMARK
             banch.Stop();
@@ -113,6 +110,48 @@ namespace FirePredictionSystem.Additional.C45
             return result;
         }
 
+        public void CountLeafInTree()
+        {
+            int iter = 0;
+            int NumberOfAnswers = 0;
+            int NumberOfLeafs = 0;
+            List<Leaf> children1 = new List<Leaf>(50);
+            List<Leaf> children2 = new List<Leaf>(50);
+            LayersAnswers = new List<int>(10);
+            LayersLeaf = new List<int>(10);
 
+            children1.AddRange(Root.Children);
+            
+            while (children1.Count > 0 &&
+                iter < 1000)
+            {
+                foreach (var child in children1)
+                {
+                    if (!child.IsAnswer)
+                    {
+                        ++iter;
+                        ++LeafCounter;
+                        ++NumberOfLeafs;
+                        foreach (var child2 in child.Children)
+                        {
+                            children2.Add(child2);
+                        }
+                    }
+                    else
+                    {
+                        ++NumberOfAnswers;
+                    }
+                }
+
+                children1.Clear();
+                children1.AddRange(children2);
+                children2.Clear();
+
+                LayersAnswers.Add(NumberOfAnswers);
+                LayersLeaf.Add(NumberOfLeafs);
+                NumberOfAnswers = 0;
+                NumberOfLeafs = 0;
+            }
+        }
     }
 }

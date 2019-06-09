@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<nlog xmlns="http://www.nlog-project.org/schemas/NLog.xsd"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <targets>
+    <target name="run_log"
+    xsi:type="ColoredConsole"
+    layout="${longdate}|${level}| ${message}"
+    encoding="win-1251"/>
+  </targets>
+
+  <rules>
+    <logger name="*" minlevel="Debug" writeTo="Console" />
+    <logger name="*" minlevel="Trace" writeTo="Console" />
+  </rules>
+</nlog>
